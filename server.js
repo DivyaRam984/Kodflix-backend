@@ -1,36 +1,47 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 
-if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
-  console.error('Fatal: JWT_SECRET is required in production');
-  process.exit(1);
-}
-
 const app = express();
-const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-app.use('/', authRoutes);
+// Routes
+app.use('/api/auth', authRoutes);
 
+// Health check route (important for Railway)
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'kodflix-auth' });
+  res.status(200).json({
+    status: 'ok',
+    service: 'kodflix-auth'
+  });
 });
 
+// 404 handler
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Not found' });
+  res.status(404).json({
+    success: false,
+    message: 'Not found'
+  });
 });
 
+// Error handler
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({ success: false, message: 'Internal server error' });
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error'
+  });
 });
+
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Kodflix auth server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 module.exports = app;

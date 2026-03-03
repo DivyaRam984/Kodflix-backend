@@ -26,8 +26,8 @@ async function signup(req, res) {
     );
 
     return res.status(201).json({
+      message: 'User registered successfully',
       success: true,
-      message: 'User created successfully',
       data: {
         id: result.insertId,
         name: name.trim(),
